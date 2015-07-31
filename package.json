@@ -1,5 +1,5 @@
 {
-  "name": "whatwg-url",
+  "name": "whatwg-url-compat",
   "version": "0.4.2",
   "description": "An implementation of the WHATWG URL algorithm",
   "main": "lib/url.js",
