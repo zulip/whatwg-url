@@ -1301,6 +1301,10 @@ function isSpecial(url) {
   return isSpecialScheme(url.scheme);
 }
 
+function isNotSpecial(url) {
+  return !isSpecialScheme(url.scheme);
+}
+
 function defaultPort(scheme) {
   return specialSchemes[scheme];
 }
@@ -1596,7 +1600,7 @@ function serializeIPv6(address) {
   return output;
 }
 
-function parseHost(input, isSpecialArg) {
+function parseHost(input, isNotSpecialArg = false) {
   if (input[0] === "[") {
     if (input[input.length - 1] !== "]") {
       return failure;
@@ -1605,7 +1609,7 @@ function parseHost(input, isSpecialArg) {
     return parseIPv6(input.substring(1, input.length - 1));
   }
 
-  if (!isSpecialArg) {
+  if (isNotSpecialArg) {
     return parseOpaqueHost(input);
   }
 
@@ -2054,7 +2058,7 @@ URLStateMachine.prototype["parse host"] = function parseHostName(c, cStr) {
       return failure;
     }
 
-    const host = parseHost(this.buffer, isSpecial(this.url));
+    const host = parseHost(this.buffer, isNotSpecial(this.url));
     if (host === failure) {
       return failure;
     }
@@ -2077,7 +2081,7 @@ URLStateMachine.prototype["parse host"] = function parseHostName(c, cStr) {
       return false;
     }
 
-    const host = parseHost(this.buffer, isSpecial(this.url));
+    const host = parseHost(this.buffer, isNotSpecial(this.url));
     if (host === failure) {
       return failure;
     }
@@ -2216,7 +2220,7 @@ URLStateMachine.prototype["parse file host"] = function parseFileHost(c, cStr) {
       }
       this.state = "path start";
     } else {
-      let host = parseHost(this.buffer, isSpecial(this.url));
+      let host = parseHost(this.buffer, isNotSpecial(this.url));
       if (host === failure) {
         return failure;
       }
@@ -2355,8 +2359,10 @@ URLStateMachine.prototype["parse query"] = function parseQuery(c, cStr) {
 
     const buffer = Buffer.from(this.buffer); // TODO: Use encoding override instead
     for (let i = 0; i < buffer.length; ++i) {
-      if (buffer[i] < 0x21 || buffer[i] > 0x7E || buffer[i] === 0x22 || buffer[i] === 0x23 ||
-          buffer[i] === 0x3C || buffer[i] === 0x3E) {
+      if (buffer[i] < 0x21 ||
+          buffer[i] > 0x7E ||
+          buffer[i] === 0x22 || buffer[i] === 0x23 || buffer[i] === 0x3C || buffer[i] === 0x3E ||
+          (buffer[i] === 0x27 && isSpecial(this.url))) {
         this.url.query += percentEncode(buffer[i]);
       } else {
         this.url.query += String.fromCodePoint(buffer[i]);
