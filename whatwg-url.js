@@ -13,13 +13,13 @@ exports.implementation = class URLImpl {
     if (base !== undefined) {
       parsedBase = usm.basicURLParse(base);
       if (parsedBase === null) {
-        throw new TypeError(`Invalid base URL: ${base}`);
+        throw new TypeError("Invalid base URL");
       }
     }
 
     const parsedURL = usm.basicURLParse(url, { baseURL: parsedBase });
     if (parsedURL === null) {
-      throw new TypeError(`Invalid URL: ${url}`);
+      throw new TypeError("Invalid URL");
     }
 
     const query = parsedURL.query !== null ? parsedURL.query : "";
@@ -39,7 +39,7 @@ exports.implementation = class URLImpl {
   set href(v) {
     const parsedURL = usm.basicURLParse(v);
     if (parsedURL === null) {
-      throw new TypeError(`Invalid URL: ${v}`);
+      throw new TypeError("Invalid URL");
     }
 
     this._url = parsedURL;
@@ -225,44 +225,57 @@ const utils = require("./utils.js");
 
 const impl = utils.implSymbol;
 
-class URL {
-  constructor(url) {
-    if (arguments.length < 1) {
-      throw new TypeError("Failed to construct 'URL': 1 argument required, but only " + arguments.length + " present.");
-    }
-    const args = [];
-    {
-      let curArg = arguments[0];
-      curArg = conversions["USVString"](curArg, { context: "Failed to construct 'URL': parameter 1" });
-      args.push(curArg);
-    }
-    {
-      let curArg = arguments[1];
-      if (curArg !== undefined) {
-        curArg = conversions["USVString"](curArg, { context: "Failed to construct 'URL': parameter 2" });
-      }
-      args.push(curArg);
-    }
-    return iface.setup(Object.create(new.target.prototype), args);
+function URL(url) {
+  if (!new.target) {
+    throw new TypeError(
+      "Failed to construct 'URL'. Please use the 'new' operator; this constructor " + "cannot be called as a function."
+    );
+  }
+  if (arguments.length < 1) {
+    throw new TypeError(
+      "Failed to construct 'URL': 1 " + "argument required, but only " + arguments.length + " present."
+    );
   }
 
-  toJSON() {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-
-    return this[impl].toJSON();
+  const args = [];
+  for (let i = 0; i < arguments.length && i < 2; ++i) {
+    args[i] = arguments[i];
   }
 
-  get href() {
+  args[0] = conversions["USVString"](args[0], { context: "Failed to construct 'URL': parameter 1" });
+
+  if (args[1] !== undefined) {
+    args[1] = conversions["USVString"](args[1], { context: "Failed to construct 'URL': parameter 2" });
+  }
+
+  iface.setup(this, args);
+}
+
+Object.defineProperty(URL, "prototype", {
+  value: URL.prototype,
+  writable: false,
+  enumerable: false,
+  configurable: false
+});
+
+URL.prototype.toJSON = function toJSON() {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+
+  return this[impl].toJSON();
+};
+
+Object.defineProperty(URL.prototype, "href", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["href"];
-  }
+  },
 
-  set href(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -270,32 +283,42 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'href' property on 'URL': The provided value" });
 
     this[impl]["href"] = V;
-  }
+  },
 
-  toString() {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-    return this[impl]["href"];
-  }
+  enumerable: true,
+  configurable: true
+});
 
-  get origin() {
+URL.prototype.toString = function toString() {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+  return this[impl]["href"];
+};
+
+Object.defineProperty(URL.prototype, "origin", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["origin"];
-  }
+  },
 
-  get protocol() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "protocol", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["protocol"];
-  }
+  },
 
-  set protocol(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -303,17 +326,22 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'protocol' property on 'URL': The provided value" });
 
     this[impl]["protocol"] = V;
-  }
+  },
 
-  get username() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "username", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["username"];
-  }
+  },
 
-  set username(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -321,17 +349,22 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'username' property on 'URL': The provided value" });
 
     this[impl]["username"] = V;
-  }
+  },
 
-  get password() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "password", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["password"];
-  }
+  },
 
-  set password(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -339,17 +372,22 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'password' property on 'URL': The provided value" });
 
     this[impl]["password"] = V;
-  }
+  },
 
-  get host() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "host", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["host"];
-  }
+  },
 
-  set host(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -357,17 +395,22 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'host' property on 'URL': The provided value" });
 
     this[impl]["host"] = V;
-  }
+  },
 
-  get hostname() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "hostname", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["hostname"];
-  }
+  },
 
-  set hostname(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -375,17 +418,22 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'hostname' property on 'URL': The provided value" });
 
     this[impl]["hostname"] = V;
-  }
+  },
 
-  get port() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "port", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["port"];
-  }
+  },
 
-  set port(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -393,17 +441,22 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'port' property on 'URL': The provided value" });
 
     this[impl]["port"] = V;
-  }
+  },
 
-  get pathname() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "pathname", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["pathname"];
-  }
+  },
 
-  set pathname(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -411,17 +464,22 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'pathname' property on 'URL': The provided value" });
 
     this[impl]["pathname"] = V;
-  }
+  },
 
-  get search() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "search", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["search"];
-  }
+  },
 
-  set search(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -429,9 +487,14 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'search' property on 'URL': The provided value" });
 
     this[impl]["search"] = V;
-  }
+  },
 
-  get searchParams() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "searchParams", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -439,17 +502,22 @@ class URL {
     return utils.getSameObject(this, "searchParams", () => {
       return utils.tryWrapperForImpl(this[impl]["searchParams"]);
     });
-  }
+  },
 
-  get hash() {
+  enumerable: true,
+  configurable: true
+});
+
+Object.defineProperty(URL.prototype, "hash", {
+  get() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
 
     return this[impl]["hash"];
-  }
+  },
 
-  set hash(V) {
+  set(V) {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
@@ -457,37 +525,28 @@ class URL {
     V = conversions["USVString"](V, { context: "Failed to set the 'hash' property on 'URL': The provided value" });
 
     this[impl]["hash"] = V;
-  }
-}
-Object.defineProperties(URL.prototype, {
-  toJSON: { enumerable: true },
-  href: { enumerable: true },
-  toString: { enumerable: true },
-  origin: { enumerable: true },
-  protocol: { enumerable: true },
-  username: { enumerable: true },
-  password: { enumerable: true },
-  host: { enumerable: true },
-  hostname: { enumerable: true },
-  port: { enumerable: true },
-  pathname: { enumerable: true },
-  search: { enumerable: true },
-  searchParams: { enumerable: true },
-  hash: { enumerable: true },
-  [Symbol.toStringTag]: { value: "URL", configurable: true }
+  },
+
+  enumerable: true,
+  configurable: true
 });
+
+Object.defineProperty(URL.prototype, Symbol.toStringTag, {
+  value: "URL",
+  writable: false,
+  enumerable: false,
+  configurable: true
+});
+
 const iface = {
-  // When an interface-module that implements this interface as a mixin is loaded, it will append its own `.is()`
-  // method into this array. It allows objects that directly implements *those* interfaces to be recognized as
-  // implementing this mixin interface.
-  _mixedIntoPredicates: [],
+  mixedInto: [],
   is(obj) {
     if (obj) {
-      if (utils.hasOwn(obj, impl) && obj[impl] instanceof Impl.implementation) {
+      if (obj[impl] instanceof Impl.implementation) {
         return true;
       }
-      for (const isMixedInto of module.exports._mixedIntoPredicates) {
-        if (isMixedInto(obj)) {
+      for (let i = 0; i < module.exports.mixedInto.length; ++i) {
+        if (obj instanceof module.exports.mixedInto[i]) {
           return true;
         }
       }
@@ -501,8 +560,8 @@ const iface = {
       }
 
       const wrapper = utils.wrapperForImpl(obj);
-      for (const isMixedInto of module.exports._mixedIntoPredicates) {
-        if (isMixedInto(wrapper)) {
+      for (let i = 0; i < module.exports.mixedInto.length; ++i) {
+        if (wrapper instanceof module.exports.mixedInto[i]) {
           return true;
         }
       }
@@ -535,6 +594,8 @@ const iface = {
     this._internalSetup(obj);
     Object.defineProperty(obj, impl, {
       value: new Impl.implementation(constructorArgs, privateData),
+      writable: false,
+      enumerable: false,
       configurable: true
     });
 
@@ -552,9 +613,9 @@ const iface = {
 }; // iface
 module.exports = iface;
 
-const Impl = require("./URL-impl.js");
+const Impl = require(".//URL-impl.js");
 
-},{"./URL-impl.js":1,"./utils.js":9,"webidl-conversions":18}],3:[function(require,module,exports){
+},{".//URL-impl.js":1,"./utils.js":9,"webidl-conversions":18}],3:[function(require,module,exports){
 "use strict";
 const stableSortBy = require("lodash.sortby");
 const urlencoded = require("./urlencoded");
@@ -720,323 +781,336 @@ const IteratorPrototype = Object.create(utils.IteratorPrototype, {
     configurable: true
   },
   [Symbol.toStringTag]: {
-    value: "URLSearchParams Iterator",
+    value: "URLSearchParamsIterator",
+    writable: false,
+    enumerable: false,
     configurable: true
   }
 });
-class URLSearchParams {
-  constructor() {
-    const args = [];
-    {
-      let curArg = arguments[0];
-      if (curArg !== undefined) {
-        if (utils.isObject(curArg)) {
-          if (curArg[Symbol.iterator] !== undefined) {
-            if (!utils.isObject(curArg)) {
+
+function URLSearchParams() {
+  const args = [];
+  for (let i = 0; i < arguments.length && i < 1; ++i) {
+    args[i] = arguments[i];
+  }
+
+  if (args[0] !== undefined) {
+    if (utils.isObject(args[0])) {
+      if (args[0][Symbol.iterator] !== undefined) {
+        if (!utils.isObject(args[0])) {
+          throw new TypeError(
+            "Failed to construct 'URLSearchParams': parameter 1" + " sequence" + " is not an iterable object."
+          );
+        } else {
+          const V = [];
+          const tmp = args[0];
+          for (let nextItem of tmp) {
+            if (!utils.isObject(nextItem)) {
               throw new TypeError(
-                "Failed to construct 'URLSearchParams': parameter 1" + " sequence" + " is not an iterable object."
+                "Failed to construct 'URLSearchParams': parameter 1" +
+                  " sequence" +
+                  "'s element" +
+                  " is not an iterable object."
               );
             } else {
               const V = [];
-              const tmp = curArg;
+              const tmp = nextItem;
               for (let nextItem of tmp) {
-                if (!utils.isObject(nextItem)) {
-                  throw new TypeError(
-                    "Failed to construct 'URLSearchParams': parameter 1" +
-                      " sequence" +
-                      "'s element" +
-                      " is not an iterable object."
-                  );
-                } else {
-                  const V = [];
-                  const tmp = nextItem;
-                  for (let nextItem of tmp) {
-                    nextItem = conversions["USVString"](nextItem, {
-                      context:
-                        "Failed to construct 'URLSearchParams': parameter 1" + " sequence" + "'s element" + "'s element"
-                    });
-
-                    V.push(nextItem);
-                  }
-                  nextItem = V;
-                }
+                nextItem = conversions["USVString"](nextItem, {
+                  context:
+                    "Failed to construct 'URLSearchParams': parameter 1" + " sequence" + "'s element" + "'s element"
+                });
 
                 V.push(nextItem);
               }
-              curArg = V;
+              nextItem = V;
             }
-          } else {
-            if (!utils.isObject(curArg)) {
-              throw new TypeError(
-                "Failed to construct 'URLSearchParams': parameter 1" + " record" + " is not an object."
-              );
-            } else {
-              const result = Object.create(null);
-              for (const key of Reflect.ownKeys(curArg)) {
-                const desc = Object.getOwnPropertyDescriptor(curArg, key);
-                if (desc && desc.enumerable) {
-                  let typedKey = key;
-                  let typedValue = curArg[key];
 
-                  typedKey = conversions["USVString"](typedKey, {
-                    context: "Failed to construct 'URLSearchParams': parameter 1" + " record" + "'s key"
-                  });
-
-                  typedValue = conversions["USVString"](typedValue, {
-                    context: "Failed to construct 'URLSearchParams': parameter 1" + " record" + "'s value"
-                  });
-
-                  result[typedKey] = typedValue;
-                }
-              }
-              curArg = result;
-            }
+            V.push(nextItem);
           }
-        } else {
-          curArg = conversions["USVString"](curArg, { context: "Failed to construct 'URLSearchParams': parameter 1" });
+          args[0] = V;
         }
       } else {
-        curArg = "";
+        if (!utils.isObject(args[0])) {
+          throw new TypeError("Failed to construct 'URLSearchParams': parameter 1" + " record" + " is not an object.");
+        } else {
+          const result = Object.create(null);
+          for (const key of Reflect.ownKeys(args[0])) {
+            const desc = Object.getOwnPropertyDescriptor(args[0], key);
+            if (desc && desc.enumerable) {
+              let typedKey = key;
+              let typedValue = args[0][key];
+
+              typedKey = conversions["USVString"](typedKey, {
+                context: "Failed to construct 'URLSearchParams': parameter 1" + " record" + "'s key"
+              });
+
+              typedValue = conversions["USVString"](typedValue, {
+                context: "Failed to construct 'URLSearchParams': parameter 1" + " record" + "'s value"
+              });
+
+              result[typedKey] = typedValue;
+            }
+          }
+          args[0] = result;
+        }
       }
-      args.push(curArg);
+    } else {
+      args[0] = conversions["USVString"](args[0], { context: "Failed to construct 'URLSearchParams': parameter 1" });
     }
-    return iface.setup(Object.create(new.target.prototype), args);
+  } else {
+    args[0] = "";
   }
 
-  append(name, value) {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
+  iface.setup(this, args);
+}
 
-    if (arguments.length < 2) {
-      throw new TypeError(
-        "Failed to execute 'append' on 'URLSearchParams': 2 arguments required, but only " +
-          arguments.length +
-          " present."
-      );
-    }
-    const args = [];
-    {
-      let curArg = arguments[0];
-      curArg = conversions["USVString"](curArg, {
-        context: "Failed to execute 'append' on 'URLSearchParams': parameter 1"
-      });
-      args.push(curArg);
-    }
-    {
-      let curArg = arguments[1];
-      curArg = conversions["USVString"](curArg, {
-        context: "Failed to execute 'append' on 'URLSearchParams': parameter 2"
-      });
-      args.push(curArg);
-    }
-    return this[impl].append(...args);
-  }
+Object.defineProperty(URLSearchParams, "prototype", {
+  value: URLSearchParams.prototype,
+  writable: false,
+  enumerable: false,
+  configurable: false
+});
 
-  delete(name) {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-
-    if (arguments.length < 1) {
-      throw new TypeError(
-        "Failed to execute 'delete' on 'URLSearchParams': 1 argument required, but only " +
-          arguments.length +
-          " present."
-      );
-    }
-    const args = [];
-    {
-      let curArg = arguments[0];
-      curArg = conversions["USVString"](curArg, {
-        context: "Failed to execute 'delete' on 'URLSearchParams': parameter 1"
-      });
-      args.push(curArg);
-    }
-    return this[impl].delete(...args);
-  }
-
-  get(name) {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-
-    if (arguments.length < 1) {
-      throw new TypeError(
-        "Failed to execute 'get' on 'URLSearchParams': 1 argument required, but only " + arguments.length + " present."
-      );
-    }
-    const args = [];
-    {
-      let curArg = arguments[0];
-      curArg = conversions["USVString"](curArg, {
-        context: "Failed to execute 'get' on 'URLSearchParams': parameter 1"
-      });
-      args.push(curArg);
-    }
-    return this[impl].get(...args);
-  }
-
-  getAll(name) {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-
-    if (arguments.length < 1) {
-      throw new TypeError(
-        "Failed to execute 'getAll' on 'URLSearchParams': 1 argument required, but only " +
-          arguments.length +
-          " present."
-      );
-    }
-    const args = [];
-    {
-      let curArg = arguments[0];
-      curArg = conversions["USVString"](curArg, {
-        context: "Failed to execute 'getAll' on 'URLSearchParams': parameter 1"
-      });
-      args.push(curArg);
-    }
-    return utils.tryWrapperForImpl(this[impl].getAll(...args));
-  }
-
-  has(name) {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-
-    if (arguments.length < 1) {
-      throw new TypeError(
-        "Failed to execute 'has' on 'URLSearchParams': 1 argument required, but only " + arguments.length + " present."
-      );
-    }
-    const args = [];
-    {
-      let curArg = arguments[0];
-      curArg = conversions["USVString"](curArg, {
-        context: "Failed to execute 'has' on 'URLSearchParams': parameter 1"
-      });
-      args.push(curArg);
-    }
-    return this[impl].has(...args);
-  }
-
-  set(name, value) {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-
-    if (arguments.length < 2) {
-      throw new TypeError(
-        "Failed to execute 'set' on 'URLSearchParams': 2 arguments required, but only " + arguments.length + " present."
-      );
-    }
-    const args = [];
-    {
-      let curArg = arguments[0];
-      curArg = conversions["USVString"](curArg, {
-        context: "Failed to execute 'set' on 'URLSearchParams': parameter 1"
-      });
-      args.push(curArg);
-    }
-    {
-      let curArg = arguments[1];
-      curArg = conversions["USVString"](curArg, {
-        context: "Failed to execute 'set' on 'URLSearchParams': parameter 2"
-      });
-      args.push(curArg);
-    }
-    return this[impl].set(...args);
-  }
-
-  sort() {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-
-    return this[impl].sort();
-  }
-
-  toString() {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-
-    return this[impl].toString();
-  }
-
-  keys() {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-    return module.exports.createDefaultIterator(this, "key");
-  }
-
-  values() {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-    return module.exports.createDefaultIterator(this, "value");
-  }
-
-  entries() {
+Object.defineProperty(URLSearchParams.prototype, Symbol.iterator, {
+  writable: true,
+  enumerable: false,
+  configurable: true,
+  value: function entries() {
     if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
     }
     return module.exports.createDefaultIterator(this, "key+value");
   }
-
-  forEach(callback) {
-    if (!this || !module.exports.is(this)) {
-      throw new TypeError("Illegal invocation");
-    }
-    if (arguments.length < 1) {
-      throw new TypeError("Failed to execute 'forEach' on 'iterable': 1 argument required, " + "but only 0 present.");
-    }
-    if (typeof callback !== "function") {
-      throw new TypeError(
-        "Failed to execute 'forEach' on 'iterable': The callback provided " + "as parameter 1 is not a function."
-      );
-    }
-    const thisArg = arguments[1];
-    let pairs = Array.from(this[impl]);
-    let i = 0;
-    while (i < pairs.length) {
-      const [key, value] = pairs[i].map(utils.tryWrapperForImpl);
-      callback.call(thisArg, value, key, this);
-      pairs = Array.from(this[impl]);
-      i++;
-    }
-  }
-}
-Object.defineProperties(URLSearchParams.prototype, {
-  append: { enumerable: true },
-  delete: { enumerable: true },
-  get: { enumerable: true },
-  getAll: { enumerable: true },
-  has: { enumerable: true },
-  set: { enumerable: true },
-  sort: { enumerable: true },
-  toString: { enumerable: true },
-  keys: { enumerable: true },
-  values: { enumerable: true },
-  entries: { enumerable: true },
-  forEach: { enumerable: true },
-  [Symbol.toStringTag]: { value: "URLSearchParams", configurable: true },
-  [Symbol.iterator]: { value: URLSearchParams.prototype.entries, configurable: true, writable: true }
 });
+URLSearchParams.prototype.forEach = function forEach(callback) {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+  if (arguments.length < 1) {
+    throw new TypeError(
+      "Failed to execute 'forEach' on 'URLSearchParams': 1 argument required, " + "but only 0 present."
+    );
+  }
+  if (typeof callback !== "function") {
+    throw new TypeError(
+      "Failed to execute 'forEach' on 'URLSearchParams': The callback provided " + "as parameter 1 is not a function."
+    );
+  }
+  const thisArg = arguments[1];
+  let pairs = Array.from(this[impl]);
+  let i = 0;
+  while (i < pairs.length) {
+    const [key, value] = pairs[i].map(utils.tryWrapperForImpl);
+    callback.call(thisArg, value, key, this);
+    pairs = Array.from(this[impl]);
+    i++;
+  }
+};
+URLSearchParams.prototype.append = function append(name, value) {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+
+  if (arguments.length < 2) {
+    throw new TypeError(
+      "Failed to execute 'append' on 'URLSearchParams': 2 " +
+        "arguments required, but only " +
+        arguments.length +
+        " present."
+    );
+  }
+
+  const args = [];
+  for (let i = 0; i < arguments.length && i < 2; ++i) {
+    args[i] = arguments[i];
+  }
+
+  args[0] = conversions["USVString"](args[0], {
+    context: "Failed to execute 'append' on 'URLSearchParams': parameter 1"
+  });
+
+  args[1] = conversions["USVString"](args[1], {
+    context: "Failed to execute 'append' on 'URLSearchParams': parameter 2"
+  });
+
+  return this[impl].append(...args);
+};
+
+URLSearchParams.prototype.delete = function _(name) {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+
+  if (arguments.length < 1) {
+    throw new TypeError(
+      "Failed to execute 'delete' on 'URLSearchParams': 1 " +
+        "argument required, but only " +
+        arguments.length +
+        " present."
+    );
+  }
+
+  const args = [];
+  for (let i = 0; i < arguments.length && i < 1; ++i) {
+    args[i] = arguments[i];
+  }
+
+  args[0] = conversions["USVString"](args[0], {
+    context: "Failed to execute 'delete' on 'URLSearchParams': parameter 1"
+  });
+
+  return this[impl].delete(...args);
+};
+
+URLSearchParams.prototype.get = function get(name) {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+
+  if (arguments.length < 1) {
+    throw new TypeError(
+      "Failed to execute 'get' on 'URLSearchParams': 1 " +
+        "argument required, but only " +
+        arguments.length +
+        " present."
+    );
+  }
+
+  const args = [];
+  for (let i = 0; i < arguments.length && i < 1; ++i) {
+    args[i] = arguments[i];
+  }
+
+  args[0] = conversions["USVString"](args[0], { context: "Failed to execute 'get' on 'URLSearchParams': parameter 1" });
+
+  return this[impl].get(...args);
+};
+
+URLSearchParams.prototype.getAll = function getAll(name) {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+
+  if (arguments.length < 1) {
+    throw new TypeError(
+      "Failed to execute 'getAll' on 'URLSearchParams': 1 " +
+        "argument required, but only " +
+        arguments.length +
+        " present."
+    );
+  }
+
+  const args = [];
+  for (let i = 0; i < arguments.length && i < 1; ++i) {
+    args[i] = arguments[i];
+  }
+
+  args[0] = conversions["USVString"](args[0], {
+    context: "Failed to execute 'getAll' on 'URLSearchParams': parameter 1"
+  });
+
+  return utils.tryWrapperForImpl(this[impl].getAll(...args));
+};
+
+URLSearchParams.prototype.has = function has(name) {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+
+  if (arguments.length < 1) {
+    throw new TypeError(
+      "Failed to execute 'has' on 'URLSearchParams': 1 " +
+        "argument required, but only " +
+        arguments.length +
+        " present."
+    );
+  }
+
+  const args = [];
+  for (let i = 0; i < arguments.length && i < 1; ++i) {
+    args[i] = arguments[i];
+  }
+
+  args[0] = conversions["USVString"](args[0], { context: "Failed to execute 'has' on 'URLSearchParams': parameter 1" });
+
+  return this[impl].has(...args);
+};
+
+URLSearchParams.prototype.set = function set(name, value) {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+
+  if (arguments.length < 2) {
+    throw new TypeError(
+      "Failed to execute 'set' on 'URLSearchParams': 2 " +
+        "arguments required, but only " +
+        arguments.length +
+        " present."
+    );
+  }
+
+  const args = [];
+  for (let i = 0; i < arguments.length && i < 2; ++i) {
+    args[i] = arguments[i];
+  }
+
+  args[0] = conversions["USVString"](args[0], { context: "Failed to execute 'set' on 'URLSearchParams': parameter 1" });
+
+  args[1] = conversions["USVString"](args[1], { context: "Failed to execute 'set' on 'URLSearchParams': parameter 2" });
+
+  return this[impl].set(...args);
+};
+
+URLSearchParams.prototype.sort = function sort() {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+
+  return this[impl].sort();
+};
+
+URLSearchParams.prototype.toString = function toString() {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+
+  return this[impl].toString();
+};
+
+URLSearchParams.prototype.entries = URLSearchParams.prototype[Symbol.iterator];
+
+URLSearchParams.prototype.keys = function keys() {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+  return module.exports.createDefaultIterator(this, "key");
+};
+
+URLSearchParams.prototype.values = function values() {
+  if (!this || !module.exports.is(this)) {
+    throw new TypeError("Illegal invocation");
+  }
+  return module.exports.createDefaultIterator(this, "value");
+};
+
+Object.defineProperty(URLSearchParams.prototype, Symbol.toStringTag, {
+  value: "URLSearchParams",
+  writable: false,
+  enumerable: false,
+  configurable: true
+});
+
 const iface = {
-  // When an interface-module that implements this interface as a mixin is loaded, it will append its own `.is()`
-  // method into this array. It allows objects that directly implements *those* interfaces to be recognized as
-  // implementing this mixin interface.
-  _mixedIntoPredicates: [],
+  mixedInto: [],
   is(obj) {
     if (obj) {
-      if (utils.hasOwn(obj, impl) && obj[impl] instanceof Impl.implementation) {
+      if (obj[impl] instanceof Impl.implementation) {
         return true;
       }
-      for (const isMixedInto of module.exports._mixedIntoPredicates) {
-        if (isMixedInto(obj)) {
+      for (let i = 0; i < module.exports.mixedInto.length; ++i) {
+        if (obj instanceof module.exports.mixedInto[i]) {
           return true;
         }
       }
@@ -1050,8 +1124,8 @@ const iface = {
       }
 
       const wrapper = utils.wrapperForImpl(obj);
-      for (const isMixedInto of module.exports._mixedIntoPredicates) {
-        if (isMixedInto(wrapper)) {
+      for (let i = 0; i < module.exports.mixedInto.length; ++i) {
+        if (wrapper instanceof module.exports.mixedInto[i]) {
           return true;
         }
       }
@@ -1069,6 +1143,8 @@ const iface = {
     const iterator = Object.create(IteratorPrototype);
     Object.defineProperty(iterator, utils.iterInternalSymbol, {
       value: { target, kind, index: 0 },
+      writable: false,
+      enumerable: false,
       configurable: true
     });
     return iterator;
@@ -1093,6 +1169,8 @@ const iface = {
     this._internalSetup(obj);
     Object.defineProperty(obj, impl, {
       value: new Impl.implementation(constructorArgs, privateData),
+      writable: false,
+      enumerable: false,
       configurable: true
     });
 
@@ -1110,9 +1188,9 @@ const iface = {
 }; // iface
 module.exports = iface;
 
-const Impl = require("./URLSearchParams-impl.js");
+const Impl = require(".//URLSearchParams-impl.js");
 
-},{"./URLSearchParams-impl.js":3,"./utils.js":9,"webidl-conversions":18}],5:[function(require,module,exports){
+},{".//URLSearchParams-impl.js":3,"./utils.js":9,"webidl-conversions":18}],5:[function(require,module,exports){
 "use strict";
 
 function isASCIIDigit(c) {
@@ -2608,6 +2686,7 @@ module.exports = {
 
 }).call(this,require("buffer").Buffer)
 },{"./infra":5,"buffer":11}],9:[function(require,module,exports){
+(function (Buffer){
 "use strict";
 
 // Returns "Type(value) is Object" in ES terminology.
@@ -2615,34 +2694,31 @@ function isObject(value) {
   return typeof value === "object" && value !== null || typeof value === "function";
 }
 
-function hasOwn(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
+function getReferenceToBytes(bufferSource) {
+  // Node.js' Buffer does not allow subclassing for now, so we can get away with a prototype object check for perf.
+  if (Object.getPrototypeOf(bufferSource) === Buffer.prototype) {
+    return bufferSource;
+  }
+  if (bufferSource instanceof ArrayBuffer) {
+    return Buffer.from(bufferSource);
+  }
+  return Buffer.from(bufferSource.buffer, bufferSource.byteOffset, bufferSource.byteLength);
 }
 
-const getOwnPropertyDescriptors = typeof Object.getOwnPropertyDescriptors === "function" ?
-  Object.getOwnPropertyDescriptors :
-  // Polyfill exists until we require Node.js v8.x
-  // https://tc39.github.io/ecma262/#sec-object.getownpropertydescriptors
-  obj => {
-    if (obj === undefined || obj === null) {
-      throw new TypeError("Cannot convert undefined or null to object");
+function getCopyToBytes(bufferSource) {
+  return Buffer.from(getReferenceToBytes(bufferSource));
+}
+
+function mixin(target, source) {
+  const keys = Object.getOwnPropertyNames(source);
+  for (let i = 0; i < keys.length; ++i) {
+    if (keys[i] in target) {
+      continue;
     }
-    obj = Object(obj);
-    const ownKeys = Reflect.ownKeys(obj);
-    const descriptors = {};
-    for (const key of ownKeys) {
-      const descriptor = Reflect.getOwnPropertyDescriptor(obj, key);
-      if (descriptor !== undefined) {
-        Reflect.defineProperty(descriptors, key, {
-          value: descriptor,
-          writable: true,
-          enumerable: true,
-          configurable: true
-        });
-      }
-    }
-    return descriptors;
-  };
+
+    Object.defineProperty(target, keys[i], Object.getOwnPropertyDescriptor(source, keys[i]));
+  }
+}
 
 const wrapperSymbol = Symbol("wrapper");
 const implSymbol = Symbol("impl");
@@ -2711,8 +2787,9 @@ const namedDelete = Symbol("named property delete");
 
 module.exports = exports = {
   isObject,
-  hasOwn,
-  getOwnPropertyDescriptors,
+  getReferenceToBytes,
+  getCopyToBytes,
+  mixin,
   wrapperSymbol,
   implSymbol,
   getSameObject,
@@ -2736,7 +2813,8 @@ module.exports = exports = {
   namedDelete
 };
 
-},{}],10:[function(require,module,exports){
+}).call(this,require("buffer").Buffer)
+},{"buffer":11}],10:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -2938,7 +3016,7 @@ function typedArraySupport () {
   // Can typed array instances can be augmented?
   try {
     var arr = new Uint8Array(1)
-    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}
+    arr.__proto__ = { __proto__: Uint8Array.prototype, foo: function () { return 42 } }
     return arr.foo() === 42
   } catch (e) {
     return false
