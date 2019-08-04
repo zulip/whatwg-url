@@ -776,11 +776,12 @@ class URLSearchParams {
                 const desc = Object.getOwnPropertyDescriptor(curArg, key);
                 if (desc && desc.enumerable) {
                   let typedKey = key;
-                  let typedValue = curArg[key];
 
                   typedKey = conversions["USVString"](typedKey, {
                     context: "Failed to construct 'URLSearchParams': parameter 1" + " record" + "'s key"
                   });
+
+                  let typedValue = curArg[key];
 
                   typedValue = conversions["USVString"](typedValue, {
                     context: "Failed to construct 'URLSearchParams': parameter 1" + " record" + "'s value"
