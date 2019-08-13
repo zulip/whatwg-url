@@ -1,6 +1,5 @@
 "use strict";
 const punycode = require("punycode");
-const tr46 = require("tr46");
 
 const infra = require("./infra");
 const { percentEncode, percentDecode } = require("./urlencoded");
@@ -458,14 +457,9 @@ function serializeHost(host) {
   return host;
 }
 
-function domainToASCII(domain, beStrict = false) {
-  const result = tr46.toASCII(domain, {
-    checkBidi: true,
-    checkHyphens: false,
-    checkJoiners: true,
-    useSTD3ASCIIRules: beStrict,
-    verifyDNSLength: beStrict
-  });
+function domainToASCII(domain) {
+  const result = domain;
+
   if (result === null) {
     return failure;
   }
