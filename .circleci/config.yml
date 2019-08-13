@@ -1,0 +1,71 @@
+version: 2
+
+save-cache-yarn: &save-cache-yarn
+  key: v1-yarn-packages-{{ checksum "yarn.lock" }}
+  paths:
+    - ~/.cache/yarn
+restore-cache-yarn: &restore-cache-yarn
+  name: Restore Yarn Package Cache
+  keys:
+    - v1-yarn-packages-{{ checksum "yarn.lock" }}
+attach_workspace: &attach_workspace
+  attach_workspace:
+    at: ~/whatwg-url
+defaults: &defaults
+  working_directory: ~/whatwg-url
+  docker:
+    - image: circleci/node:12
+
+jobs:
+  checkout:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache: *restore-cache-yarn
+      - run:
+          name: Yarn version
+          command: yarn -v
+      - run:
+          name: Yarn Install
+          command: |
+            yarn install --frozen-lockfile --no-progress --non-interactive --cache-folder ~/.cache/yarn
+      - save_cache: *save-cache-yarn
+      - persist_to_workspace:
+          root: .
+          paths: .
+  build:
+    <<: *defaults
+    steps:
+      - *attach_workspace
+      - run:
+          name: Build
+          command: yarn build
+  lint:
+    <<: *defaults
+    steps:
+      - *attach_workspace
+      - run:
+          name: Lint
+          command: yarn lint
+  test:
+    <<: *defaults
+    steps:
+      - *attach_workspace
+      - run:
+          name: Run test
+          command: yarn test
+
+workflows:
+  version: 2
+  tests:
+    jobs:
+      - checkout
+      - build:
+          requires:
+            - checkout
+      - lint:
+          requires:
+            - checkout
+      - test:
+          requires:
+            - checkout
