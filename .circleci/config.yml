@@ -1,13 +1,15 @@
 version: 2
 
-save-cache-yarn: &save-cache-yarn
-  key: v1-yarn-packages-{{ checksum "yarn.lock" }}
-  paths:
-    - ~/.cache/yarn
-restore-cache-yarn: &restore-cache-yarn
-  name: Restore Yarn Package Cache
+restore-cache-npm: &restore-cache-npm
+  name: Restore npm Package Cache
   keys:
-    - v1-yarn-packages-{{ checksum "yarn.lock" }}
+    - v1-npm-packages-{{ .Branch }}-{{ checksum "package-lock.json" }}
+    - v1-npm-packages-{{ .Branch }}
+    - v1-npm-packages
+save-cache-npm: &save-cache-npm
+  key: v1-npm-packages-{{ .Branch }}-{{ checksum "package-lock.json" }}
+  paths:
+    - ~/.npm
 attach_workspace: &attach_workspace
   attach_workspace:
     at: ~/whatwg-url
@@ -21,15 +23,15 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache: *restore-cache-yarn
+      - restore_cache: *restore-cache-npm
       - run:
-          name: Yarn version
-          command: yarn -v
+          name: npm version
+          command: npm -v
       - run:
-          name: Yarn Install
+          name: npm ci
           command: |
-            yarn install --frozen-lockfile --no-progress --non-interactive --cache-folder ~/.cache/yarn
-      - save_cache: *save-cache-yarn
+            npm ci
+      - save_cache: *save-cache-npm
       - persist_to_workspace:
           root: .
           paths: .
@@ -39,21 +41,21 @@ jobs:
       - *attach_workspace
       - run:
           name: Build
-          command: yarn build
+          command: npm run build
   lint:
     <<: *defaults
     steps:
       - *attach_workspace
       - run:
           name: Lint
-          command: yarn lint
+          command: npm run lint
   test:
     <<: *defaults
     steps:
       - *attach_workspace
       - run:
           name: Run test
-          command: yarn test
+          command: npm run test
 
 workflows:
   version: 2
